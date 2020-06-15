@@ -1,0 +1,34 @@
+SELECT
+  fullVisitorId,
+  hits.page.pagePath,
+  clientId,
+  hits.customDimensions,
+FROM jellyfish-gap.58325413.ga_sessions_20200501,
+  UNNEST(hits) AS hits
+#WHERE REGEXP_CONTAINS(hits.page.pagePath, "retornoform")  
+
+
+SELECT
+  fullVisitorId,
+  hits.page.pagePath,
+  clientId,
+  hits.customDimensions,
+FROM jellyfish-gap.58325413.ga_sessions_20200501,
+  UNNEST(hits) AS hits
+#WHERE REGEXP_CONTAINS(hits.page.pagePath, "retornoform")  
+WHERE REGEXP_CONTAINS(hits.customDimensions.index, "7")
+
+
+
+
+SELECT
+  fullVisitorId,
+  clientId,
+  --,ARRAY( (SELECT AS STRUCT hitnumber, page.pagePath, transaction.transactionId FROM t.hits ) ) AS hitInfos -- test: show all hits in this session
+FROM
+  jellyfish-gap.58325413.ga_sessions_20200501 AS t 
+  CROSS JOIN t.hits AS h
+WHERE
+  -- use the repeated hits nest (not the cross joined 'h') to check all pagePaths in the session
+  (SELECT LOGICAL_OR(page.pagePath LIKE "retornoform") FROM t.hits )
+  

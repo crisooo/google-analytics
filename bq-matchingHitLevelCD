@@ -1,0 +1,47 @@
+WITH
+  t1 AS (   #crea una tabla temporal
+  SELECT
+    fullVisitorId,
+    clientId,
+    hits.page.pagePath,
+    trafficSource.source,
+    trafficSource.medium,
+    trafficSource.campaign,
+    trafficSource.keyword,
+    customDimensions.index,
+    customDimensions.value,
+    date
+  FROM
+    `jellyfish-gap.58325413.ga_sessions_*`,
+    UNNEST(customDimensions) AS customDimensions,
+    # always unnest hits/cd's so they are not in an array
+    UNNEST(hits) AS hits
+  WHERE
+    (_TABLE_SUFFIX BETWEEN "20181001"
+      AND "20181031") #choose date range from the GA tables
+    AND REGEXP_CONTAINS(hits.page.pagePath, "jellyfish")
+    AND (customDimensions.index = 6) ),
+  #end of temp table 1
+  t2 AS (
+  SELECT
+    clientid,
+    pagePath,
+    "medium user" AS erb
+  FROM
+    t1
+  WHERE
+    medium = "cpc")  #dont add comma because everything on top of this is a temp table t2
+SELECT
+  t1.clientid,
+  erb,
+  t1.pagePath,
+  trafficSource.source,
+  trafficSource.medium,
+  trafficSource.campaign,
+  trafficSource.keyword,
+FROM
+  t1
+JOIN
+  t2
+USING
+  (clientid) #USING so that you don't need to use On this on that on the JOIN

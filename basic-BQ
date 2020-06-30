@@ -32,3 +32,23 @@ WHERE
   -- use the repeated hits nest (not the cross joined 'h') to check all pagePaths in the session
   (SELECT LOGICAL_OR(page.pagePath LIKE "retornoform") FROM t.hits )
   
+  
+  
+  #FINAL QUERY
+    SELECT
+    clientId,
+    REGEXP_EXTRACT(hits.page.pagePath, r"idlanding=([^&]*)") AS idlanding_value,
+    trafficSource.source,
+    trafficSource.medium,
+    trafficSource.campaign,
+    trafficSource.keyword,
+    
+  FROM
+    `allianz-marketing-data.216716148.ga_sessions_*`,
+    UNNEST(hits) AS hits
+  WHERE
+    (_TABLE_SUFFIX BETWEEN "20200511"
+      AND "20200612") #choose date range from the GA tables
+    AND REGEXP_CONTAINS(hits.page.pagePath, "retornoform")
+
+  

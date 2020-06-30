@@ -1,4 +1,65 @@
 WITH
+  t1 AS (   # Tabla temporal. Landing con descuento
+  SELECT
+    date,
+    clientId,
+    "landing descuento" AS landing
+  FROM
+    `jellyfish-gap.cris_test.allianz_mk_20200616`,
+    UNNEST(hits) AS hits
+  WHERE
+    REGEXP_CONTAINS(hits.page.pagePath, "seguros-de-coches-allianz")),
+  #end of temp table 1
+  t2 AS (
+  SELECT
+    date,
+    clientid,
+    trafficSource.source,
+    trafficSource.medium,
+    trafficSource.campaign,
+    trafficSource.keyword,
+    hits.eventInfo.eventAction AS leadComercial
+  FROM
+    `jellyfish-gap.cris_test.allianz_mk_20200616`,
+    UNNEST(hits) AS hits
+  WHERE REGEXP_CONTAINS(hits.eventInfo.eventCategory, "LeadGenerado")
+  AND REGEXP_CONTAINS(hits.eventInfo.eventAction, r"ClientePresupuesto|NoClientePresupuesto")),
+  t3 AS (
+  SELECT
+    clientid,
+    clean_fechaAlta,
+    old_tipoSeguro AS tipoPolizaContratada
+  FROM
+    `jellyfish-gap.cris_test.offline_test`
+ WHERE
+ REGEXP_CONTAINS(clean_estado, "nueva poliza"))
+SELECT
+  t2.date, 
+  t2.clientid,
+  t2.source,
+  t2.medium,
+  t2.campaign,
+  t2.keyword,
+  t2.leadComercial,
+  t3.clean_fechaAlta,
+  t3.tipoPolizaContratada,
+  t1.landing
+FROM
+  t2
+LEFT JOIN
+  t1 ON t2.clientId = t1.clientId
+LEFT JOIN
+  t3 ON t2.clientId = t3.clientId
+
+
+
+
+
+
+#OTHER
+
+
+WITH
   t1 AS (   #crea una tabla temporal
   SELECT
     date,

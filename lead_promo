@@ -1,0 +1,82 @@
+WITH
+  t1 AS (   #crea una tabla temporal
+  SELECT
+    date,
+    clientId,
+    "promo user" as promo
+  FROM
+    `jellyfish-gap.cris_test.allianz_mk_20200616`,
+    UNNEST(hits) AS hits
+  WHERE
+    REGEXP_CONTAINS(hits.page.pagePath, "seguros-de-coches-allianz")),
+  #end of temp table 1
+  t2 AS (
+  SELECT
+    clientid,
+    trafficSource.source,
+    trafficSource.medium,
+    trafficSource.campaign,
+    trafficSource.keyword,
+  FROM
+    `jellyfish-gap.cris_test.allianz_mk_20200616`) #No comma as everything on top is a temp table t2
+SELECT
+  t2.clientid,
+  t2.source,
+  t2.medium,
+  t2.campaign,
+  t2.keyword,
+FROM
+  t2
+JOIN
+  t1
+USING
+  (clientid) #USING so that you don't need to use On this on that on the JOIN 
+  
+  
+XXXX CON GAM
+WITH
+  t1 AS (   #Tabla temporal. Landing con descuento
+  SELECT
+    date,
+    clientId,
+    "landing descuento" AS landing
+  FROM
+    `jellyfish-gap.cris_test.allianz_mk_20200616`,
+    UNNEST(hits) AS hits
+  WHERE
+    REGEXP_CONTAINS(hits.page.pagePath, "seguros-de-coches-allianz")),
+  #end of temp table 1
+  t2 AS (
+  SELECT
+    date,
+    clientid,
+    trafficSource.source,
+    trafficSource.medium,
+    trafficSource.campaign,
+    trafficSource.keyword,
+  FROM
+    `jellyfish-gap.cris_test.allianz_mk_20200616`), 
+  t3 AS (
+  SELECT
+    clientid,
+    clean_fechaAlta,
+    tipoSeguro AS tipoPolizaContratada
+  FROM
+    `jellyfish-gap.cris_test.alli_end2end_20200624`
+ WHERE
+ REGEXP_CONTAINS(clean_estado, "nueva poliza"))
+SELECT
+  t2.date, 
+  t2.clientid,
+  t2.source,
+  t2.medium,
+  t2.campaign,
+  t2.keyword,
+#  t3.clean_fechaAlta,
+#  t3.tipoSeguro
+FROM
+  t2
+JOIN
+  t1 ON t2.clientId = t1.clientId
+#JOIN
+#  t3 ON t2.clientId = t3.clientId

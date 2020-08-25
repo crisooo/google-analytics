@@ -47,7 +47,7 @@ WHERE
     trafficSource.keyword,
     
   FROM
-    `allianz-marketing-data.216716148.ga_sessions_*`,
+    `all-marketing-data.21671688.ga_sessions_*`,
     UNNEST(hits) AS hits
   WHERE
     (_TABLE_SUFFIX BETWEEN "20200511"
